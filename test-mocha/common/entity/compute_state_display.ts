@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import { computeStateDisplay } from "../../../src/common/entity/compute_state_display";
+import { UNKNOWN } from "../../../src/data/entity";
 
 describe("computeStateDisplay", () => {
   // Mock Localize function for testing
@@ -63,6 +64,20 @@ describe("computeStateDisplay", () => {
     assert.strictEqual(computeStateDisplay(localize, stateObj, "en"), "123 m");
   });
 
+  it("Localizes and formats numeric sensor value with units", () => {
+    const stateObj: any = {
+      entity_id: "sensor.test",
+      state: "1234.5",
+      attributes: {
+        unit_of_measurement: "m",
+      },
+    };
+    assert.strictEqual(
+      computeStateDisplay(localize, stateObj, "en"),
+      "1,234.5 m"
+    );
+  });
+
   it("Localizes unknown sensor value with units", () => {
     const altLocalize = (message, ...args) => {
       if (message === "state.sensor.unknown") {
@@ -72,7 +87,7 @@ describe("computeStateDisplay", () => {
     };
     const stateObj: any = {
       entity_id: "sensor.test",
-      state: "unknown",
+      state: UNKNOWN,
       attributes: {
         unit_of_measurement: "m",
       },

@@ -1,11 +1,10 @@
 import "@material/mwc-button";
-import "@polymer/paper-dialog-scrollable/paper-dialog-scrollable";
-import "@polymer/paper-input/paper-input";
 import {
   css,
   CSSResult,
   customElement,
   html,
+  internalProperty,
   LitElement,
   property,
   TemplateResult,
@@ -14,7 +13,7 @@ import { ifDefined } from "lit-html/directives/if-defined";
 import memoizeOne from "memoize-one";
 import { isComponentLoaded } from "../../../common/config/is_component_loaded";
 import { computeStateName } from "../../../common/entity/compute_state_name";
-import "../../../components/dialog/ha-paper-dialog";
+import "../../../components/ha-card";
 import {
   AreaRegistryEntry,
   deleteAreaRegistryEntry,
@@ -37,7 +36,7 @@ import {
 
 @customElement("ha-config-area-page")
 class HaConfigAreaPage extends LitElement {
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property() public areaId!: string;
 
@@ -53,7 +52,7 @@ class HaConfigAreaPage extends LitElement {
 
   @property() public route!: Route;
 
-  @property() private _related?: RelatedResult;
+  @internalProperty() private _related?: RelatedResult;
 
   private _area = memoizeOne((areaId: string, areas: AreaRegistryEntry[]):
     | AreaRegistryEntry
@@ -82,7 +81,8 @@ class HaConfigAreaPage extends LitElement {
     if (!area) {
       return html`
         <hass-error-screen
-          error="${this.hass.localize("ui.panel.config.areas.area_not_found")}"
+          .hass=${this.hass}
+          .error=${this.hass.localize("ui.panel.config.areas.area_not_found")}
         ></hass-error-screen>
       `;
     }
@@ -106,7 +106,7 @@ class HaConfigAreaPage extends LitElement {
 
         <ha-icon-button
           slot="toolbar-icon"
-          icon="hass:settings"
+          icon="hass:cog"
           .entry=${area}
           @click=${this._showSettings}
         ></ha-icon-button>
@@ -176,8 +176,8 @@ class HaConfigAreaPage extends LitElement {
                                   </a>
                                   ${!state.attributes.id
                                     ? html`
-                                        <paper-tooltip
-                                          >${this.hass.localize(
+                                        <paper-tooltip animation-delay="0">
+                                          ${this.hass.localize(
                                             "ui.panel.config.devices.cant_edit"
                                           )}
                                         </paper-tooltip>
@@ -229,8 +229,8 @@ class HaConfigAreaPage extends LitElement {
                                   </a>
                                   ${!state.attributes.id
                                     ? html`
-                                        <paper-tooltip
-                                          >${this.hass.localize(
+                                        <paper-tooltip animation-delay="0">
+                                          ${this.hass.localize(
                                             "ui.panel.config.devices.cant_edit"
                                           )}
                                         </paper-tooltip>
@@ -262,11 +262,7 @@ class HaConfigAreaPage extends LitElement {
                           return state
                             ? html`
                                 <a
-                                  href=${ifDefined(
-                                    state.attributes.id
-                                      ? `/config/script/edit/${state.attributes.id}`
-                                      : undefined
-                                  )}
+                                  href=${`/config/script/edit/${state.entity_id}`}
                                 >
                                   <paper-item>
                                     <paper-item-body>
@@ -317,8 +313,8 @@ class HaConfigAreaPage extends LitElement {
             text: this.hass.localize(
               "ui.panel.config.areas.delete.confirmation_text"
             ),
-            dismissText: this.hass.localize("ui.common.no"),
-            confirmText: this.hass.localize("ui.common.yes"),
+            dismissText: this.hass.localize("ui.common.cancel"),
+            confirmText: this.hass.localize("ui.common.delete"),
           }))
         ) {
           return false;
@@ -383,6 +379,7 @@ class HaConfigAreaPage extends LitElement {
 
         paper-item {
           cursor: pointer;
+          font-size: var(--paper-font-body1_-_font-size);
         }
 
         a {

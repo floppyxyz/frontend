@@ -2,9 +2,12 @@ import { fireEvent } from "../../../common/dom/fire_event";
 import {
   LovelaceBadgeConfig,
   LovelaceCardConfig,
+  LovelaceViewConfig,
+  LovelaceViewElement,
 } from "../../../data/lovelace";
 import { CUSTOM_TYPE_PREFIX } from "../../../data/lovelace_custom_cards";
 import type { HuiErrorCard } from "../cards/hui-error-card";
+import type { ErrorCardConfig } from "../cards/types";
 import { LovelaceElement, LovelaceElementConfig } from "../elements/types";
 import { LovelaceRow, LovelaceRowConfig } from "../entity-rows/types";
 import { LovelaceHeaderFooterConfig } from "../header-footer/types";
@@ -13,8 +16,9 @@ import {
   LovelaceCard,
   LovelaceCardConstructor,
   LovelaceHeaderFooter,
+  LovelaceHeaderFooterConstructor,
+  LovelaceRowConstructor,
 } from "../types";
-import type { ErrorCardConfig } from "../cards/types";
 
 const TIMEOUT = 2000;
 
@@ -37,11 +41,16 @@ interface CreateElementConfigTypes {
   row: {
     config: LovelaceRowConfig;
     element: LovelaceRow;
-    constructor: unknown;
+    constructor: LovelaceRowConstructor;
   };
   "header-footer": {
     config: LovelaceHeaderFooterConfig;
     element: LovelaceHeaderFooter;
+    constructor: LovelaceHeaderFooterConstructor;
+  };
+  view: {
+    config: LovelaceViewConfig;
+    element: LovelaceViewElement;
     constructor: unknown;
   };
 }
@@ -95,6 +104,10 @@ const _customCreate = <T extends keyof CreateElementConfigTypes>(
     `Custom element doesn't exist: ${tag}.`,
     config
   );
+  // Custom elements are required to have a - in the name
+  if (!tag.includes("-")) {
+    return element;
+  }
   element.style.display = "None";
   const timer = window.setTimeout(() => {
     element.style.display = "";
@@ -235,20 +248,26 @@ export const getLovelaceElementClass = async <
 
   if (customTag) {
     const customCls = customElements.get(customTag);
-    return (
-      customCls ||
-      new Promise((resolve, reject) => {
-        // We will give custom components up to TIMEOUT seconds to get defined
-        setTimeout(
-          () => reject(new Error(`Custom element not found: ${customTag}`)),
-          TIMEOUT
-        );
+    if (customCls) {
+      return customCls;
+    }
 
-        customElements
-          .whenDefined(customTag)
-          .then(() => resolve(customElements.get(customTag)));
-      })
-    );
+    // Custom elements are required to have a - in the name
+    if (!customTag.includes("-")) {
+      throw new Error(`Custom element not found: ${customTag}`);
+    }
+
+    return new Promise((resolve, reject) => {
+      // We will give custom components up to TIMEOUT seconds to get defined
+      setTimeout(
+        () => reject(new Error(`Custom element not found: ${customTag}`)),
+        TIMEOUT
+      );
+
+      customElements
+        .whenDefined(customTag)
+        .then(() => resolve(customElements.get(customTag)));
+    });
   }
 
   const tag = `hui-${type}-${tagSuffix}`;

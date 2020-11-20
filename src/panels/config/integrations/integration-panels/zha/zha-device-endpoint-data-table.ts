@@ -15,12 +15,12 @@ import type {
   HaDataTable,
   DataTableRowData,
 } from "../../../../../components/data-table/ha-data-table";
-import "../../../../../components/entity/ha-state-icon";
 import type {
   ZHADeviceEndpoint,
   ZHAEntityReference,
 } from "../../../../../data/zha";
 import type { HomeAssistant } from "../../../../../types";
+import { computeRTLDirection } from "../../../../../common/util/compute_rtl";
 
 export interface DeviceEndpointRowData extends DataTableRowData {
   id: string;
@@ -41,7 +41,7 @@ export class ZHADeviceEndpointDataTable extends LitElement {
 
   @property({ type: Array }) public deviceEndpoints: ZHADeviceEndpoint[] = [];
 
-  @query("ha-data-table") private _dataTable!: HaDataTable;
+  @query("ha-data-table", true) private _dataTable!: HaDataTable;
 
   private _deviceEndpoints = memoizeOne(
     (deviceEndpoints: ZHADeviceEndpoint[]) => {
@@ -147,6 +147,9 @@ export class ZHADeviceEndpointDataTable extends LitElement {
         .data=${this._deviceEndpoints(this.deviceEndpoints)}
         .selectable=${this.selectable}
         auto-height
+        .dir=${computeRTLDirection(this.hass)}
+        .searchLabel=${this.hass.localize("ui.components.data-table.search")}
+        .noDataText=${this.hass.localize("ui.components.data-table.no-data")}
       ></ha-data-table>
     `;
   }

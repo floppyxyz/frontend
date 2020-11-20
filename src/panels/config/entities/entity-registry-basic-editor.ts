@@ -5,6 +5,7 @@ import {
   html,
   LitElement,
   property,
+  internalProperty,
   PropertyValues,
   TemplateResult,
 } from "lit-element";
@@ -16,22 +17,23 @@ import {
   ExtEntityRegistryEntry,
   updateEntityRegistryEntry,
 } from "../../../data/entity_registry";
+import { showAlertDialog } from "../../../dialogs/generic/show-dialog-box";
 import type { PolymerChangedEvent } from "../../../polymer-types";
 import type { HomeAssistant } from "../../../types";
 
 @customElement("ha-registry-basic-editor")
 export class HaEntityRegistryBasicEditor extends LitElement {
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property() public entry!: ExtEntityRegistryEntry;
 
-  @property() private _origEntityId!: string;
+  @internalProperty() private _origEntityId!: string;
 
-  @property() private _entityId!: string;
+  @internalProperty() private _entityId!: string;
 
-  @property() private _disabledBy!: string | null;
+  @internalProperty() private _disabledBy!: string | null;
 
-  @property() private _submitting?: boolean;
+  @internalProperty() private _submitting?: boolean;
 
   public async updateEntry(): Promise<void> {
     this._submitting = true;
@@ -42,7 +44,27 @@ export class HaEntityRegistryBasicEditor extends LitElement {
       params.disabled_by = this._disabledBy;
     }
     try {
-      await updateEntityRegistryEntry(this.hass!, this._origEntityId, params);
+      const result = await updateEntityRegistryEntry(
+        this.hass!,
+        this._origEntityId,
+        params
+      );
+      if (result.require_restart) {
+        showAlertDialog(this, {
+          text: this.hass.localize(
+            "ui.dialogs.entity_registry.editor.enabled_restart_confirm"
+          ),
+        });
+      }
+      if (result.reload_delay) {
+        showAlertDialog(this, {
+          text: this.hass.localize(
+            "ui.dialogs.entity_registry.editor.enabled_delay_confirm",
+            "delay",
+            result.reload_delay
+          ),
+        });
+      }
     } finally {
       this._submitting = false;
     }

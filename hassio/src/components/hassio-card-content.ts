@@ -14,7 +14,7 @@ import { HomeAssistant } from "../../../src/types";
 
 @customElement("hassio-card-content")
 class HassioCardContent extends LitElement {
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property() public title!: string;
 
@@ -50,7 +50,7 @@ class HassioCardContent extends LitElement {
           `
         : html`
             <ha-svg-icon
-              class=${this.iconClass}
+              class=${this.iconClass!}
               .path=${this.icon}
               .title=${this.iconTitle}
             ></ha-svg-icon>

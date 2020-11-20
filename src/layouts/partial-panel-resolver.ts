@@ -1,6 +1,13 @@
 import { PolymerElement } from "@polymer/polymer";
+import {
+  STATE_NOT_RUNNING,
+  STATE_RUNNING,
+  STATE_STARTING,
+} from "home-assistant-js-websocket";
 import { customElement, property, PropertyValues } from "lit-element";
+import { deepActiveElement } from "../common/dom/deep-active-element";
 import { deepEqual } from "../common/util/deep-equal";
+import { CustomPanelInfo } from "../data/panel_custom";
 import { HomeAssistant, Panels } from "../types";
 import { removeInitSkeleton } from "../util/init-skeleton";
 import {
@@ -8,13 +15,6 @@ import {
   RouteOptions,
   RouterOptions,
 } from "./hass-router-page";
-import {
-  STATE_STARTING,
-  STATE_NOT_RUNNING,
-  STATE_RUNNING,
-} from "home-assistant-js-websocket";
-import { CustomPanelInfo } from "../data/panel_custom";
-import { deepActiveElement } from "../common/dom/deep-active-element";
 
 const CACHE_URL_PATHS = ["lovelace", "developer-tools"];
 const COMPONENTS = {
@@ -64,6 +64,10 @@ const COMPONENTS = {
     import(
       /* webpackChunkName: "panel-shopping-list" */ "../panels/shopping-list/ha-panel-shopping-list"
     ),
+  "media-browser": () =>
+    import(
+      /* webpackChunkName: "panel-media-browser" */ "../panels/media-browser/ha-panel-media-browser"
+    ),
 };
 
 const getRoutes = (panels: Panels): RouterOptions => {
@@ -87,7 +91,7 @@ const getRoutes = (panels: Panels): RouterOptions => {
 
 @customElement("partial-panel-resolver")
 class PartialPanelResolver extends HassRouterPage {
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property() public narrow?: boolean;
 
@@ -162,6 +166,10 @@ class PartialPanelResolver extends HassRouterPage {
   }
 
   private _checkVisibility() {
+    if (this.hass.suspendWhenHidden === false) {
+      return;
+    }
+
     if (document.hidden) {
       this._onHidden();
     } else {
@@ -185,8 +193,7 @@ class PartialPanelResolver extends HassRouterPage {
         curPanel.component_name !== "iframe" &&
         // Do not disconnect any custom panel that embeds into iframe (ie hassio)
         (curPanel.component_name !== "custom" ||
-          !(curPanel.config as CustomPanelInfo).config._panel_custom
-            .embed_iframe)
+          !(curPanel as CustomPanelInfo).config._panel_custom.embed_iframe)
       ) {
         this._disconnectedPanel = this.lastChild as HTMLElement;
         const activeEl = deepActiveElement(

@@ -1,7 +1,12 @@
 import "@polymer/paper-item/paper-item";
 import "@polymer/paper-item/paper-item-body";
 import { PolymerElement } from "@polymer/polymer";
-import { customElement, property, PropertyValues } from "lit-element";
+import {
+  customElement,
+  property,
+  internalProperty,
+  PropertyValues,
+} from "lit-element";
 import { isComponentLoaded } from "../../common/config/is_component_loaded";
 import { listenMediaQuery } from "../../common/dom/media_query";
 import { CloudStatus, fetchCloudStatus } from "../../data/cloud";
@@ -21,12 +26,14 @@ import {
   mdiViewDashboard,
   mdiAccount,
   mdiMapMarkerRadius,
-  mdiAccountBadgeHorizontal,
+  mdiBadgeAccountHorizontal,
   mdiHomeAssistant,
   mdiServer,
   mdiInformation,
   mdiMathLog,
   mdiPencil,
+  mdiNfcVariant,
+  mdiPaletteSwatch,
 } from "@mdi/js";
 
 declare global {
@@ -69,6 +76,12 @@ export const configSections: { [name: string]: PageNavigation[] } = {
   ],
   automation: [
     {
+      component: "blueprint",
+      path: "/config/blueprint",
+      translationKey: "ui.panel.config.blueprint.caption",
+      iconPath: mdiPaletteSwatch,
+    },
+    {
       component: "automation",
       path: "/config/automation",
       translationKey: "ui.panel.config.automation.caption",
@@ -86,11 +99,22 @@ export const configSections: { [name: string]: PageNavigation[] } = {
       translationKey: "ui.panel.config.script.caption",
       iconPath: mdiScriptText,
     },
+  ],
+  helpers: [
     {
       component: "helpers",
       path: "/config/helpers",
       translationKey: "ui.panel.config.helpers.caption",
       iconPath: mdiTools,
+      core: true,
+    },
+  ],
+  experimental: [
+    {
+      component: "tags",
+      path: "/config/tags",
+      translationKey: "ui.panel.config.tags.caption",
+      iconPath: mdiNfcVariant,
       core: true,
     },
   ],
@@ -119,8 +143,9 @@ export const configSections: { [name: string]: PageNavigation[] } = {
       component: "users",
       path: "/config/users",
       translationKey: "ui.panel.config.users.caption",
-      iconPath: mdiAccountBadgeHorizontal,
+      iconPath: mdiBadgeAccountHorizontal,
       core: true,
+      advancedOnly: true,
     },
   ],
   general: [
@@ -167,7 +192,7 @@ export const configSections: { [name: string]: PageNavigation[] } = {
 
 @customElement("ha-panel-config")
 class HaPanelConfig extends HassRouterPage {
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property() public narrow!: boolean;
 
@@ -188,6 +213,20 @@ class HaPanelConfig extends HassRouterPage {
         load: () =>
           import(
             /* webpackChunkName: "panel-config-automation" */ "./automation/ha-config-automation"
+          ),
+      },
+      blueprint: {
+        tag: "ha-config-blueprint",
+        load: () =>
+          import(
+            /* webpackChunkName: "panel-config-blueprint" */ "./blueprint/ha-config-blueprint"
+          ),
+      },
+      tags: {
+        tag: "ha-config-tags",
+        load: () =>
+          import(
+            /* webpackChunkName: "panel-config-tags" */ "./tags/ha-config-tags"
           ),
       },
       cloud: {
@@ -330,14 +369,21 @@ class HaPanelConfig extends HassRouterPage {
             /* webpackChunkName: "panel-config-mqtt" */ "./integrations/integration-panels/mqtt/mqtt-config-panel"
           ),
       },
+      ozw: {
+        tag: "ozw-config-router",
+        load: () =>
+          import(
+            /* webpackChunkName: "panel-config-ozw" */ "./integrations/integration-panels/ozw/ozw-config-router"
+          ),
+      },
     },
   };
 
-  @property() private _wideSidebar = false;
+  @internalProperty() private _wideSidebar = false;
 
-  @property() private _wide = false;
+  @internalProperty() private _wide = false;
 
-  @property() private _cloudStatus?: CloudStatus;
+  @internalProperty() private _cloudStatus?: CloudStatus;
 
   private _listeners: Array<() => void> = [];
 

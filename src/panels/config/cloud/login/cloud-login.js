@@ -16,6 +16,7 @@ import LocalizeMixin from "../../../../mixins/localize-mixin";
 import NavigateMixin from "../../../../mixins/navigate-mixin";
 import "../../../../styles/polymer-ha-style";
 import "../../ha-config-section";
+import { computeRTL } from "../../../../common/util/compute_rtl";
 
 /*
  * @appliesMixin NavigateMixin
@@ -30,7 +31,6 @@ class CloudLogin extends LocalizeMixin(
       <style include="iron-flex ha-style">
         .content {
           padding-bottom: 24px;
-          direction: ltr;
         }
         [slot="introduction"] {
           margin: -1em 0;
@@ -67,17 +67,19 @@ class CloudLogin extends LocalizeMixin(
         }
         .flash-msg ha-icon-button {
           position: absolute;
-          top: 8px;
+          top: 4px;
           right: 8px;
           color: var(--secondary-text-color);
         }
+        :host([rtl]) .flash-msg ha-icon-button {
+          right: auto;
+          left: 8px;
+        }
       </style>
-      <hass-subpage header="[[localize('ui.panel.config.cloud.caption')]]">
+      <hass-subpage hass="[[hass]]" header="Home Assistant Cloud">
         <div class="content">
           <ha-config-section is-wide="[[isWide]]">
-            <span slot="header"
-              >[[localize('ui.panel.config.cloud.caption')]]</span
-            >
+            <span slot="header">Home Assistant Cloud</span>
             <div slot="introduction">
               <p>
                 [[localize('ui.panel.config.cloud.login.introduction')]]
@@ -191,6 +193,11 @@ class CloudLogin extends LocalizeMixin(
       flashMessage: {
         type: String,
         notify: true,
+      },
+      rtl: {
+        type: Boolean,
+        reflectToAttribute: true,
+        computed: "_computeRTL(hass)",
       },
       _error: String,
     };
@@ -306,6 +313,10 @@ class CloudLogin extends LocalizeMixin(
     setTimeout(() => {
       this.flashMessage = "";
     }, 200);
+  }
+
+  _computeRTL(hass) {
+    return computeRTL(hass);
   }
 }
 

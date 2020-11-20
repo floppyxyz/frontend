@@ -53,19 +53,21 @@ export const provideHass = (
   } = {};
   const entities = {};
 
-  function updateTranslations(fragment: null | string, language?: string) {
+  async function updateTranslations(
+    fragment: null | string,
+    language?: string
+  ) {
     const lang = language || getLocalLanguage();
-    getTranslation(fragment, lang).then((translation) => {
-      const resources = {
-        [lang]: {
-          ...(hass().resources && hass().resources[lang]),
-          ...translation.data,
-        },
-      };
-      hass().updateHass({
-        resources,
-        localize: computeLocalize(elements[0], lang, resources),
-      });
+    const translation = await getTranslation(fragment, lang);
+    const resources = {
+      [lang]: {
+        ...(hass().resources && hass().resources[lang]),
+        ...translation.data,
+      },
+    };
+    hass().updateHass({
+      resources,
+      localize: await computeLocalize(elements[0], lang, resources),
     });
   }
 
@@ -180,7 +182,9 @@ export const provideHass = (
     config: demoConfig,
     themes: {
       default_theme: "default",
+      default_dark_theme: null,
       themes: {},
+      darkMode: false,
     },
     panels: demoPanels,
     services: demoServices,
@@ -203,6 +207,7 @@ export const provideHass = (
     translationMetadata: translationMetadata as any,
     dockedSidebar: "auto",
     vibrate: true,
+    suspendWhenHidden: false,
     moreInfoEntityId: null as any,
     // @ts-ignore
     async callService(domain, service, data) {
@@ -252,7 +257,7 @@ export const provideHass = (
     mockTheme(theme) {
       invalidateThemeCache();
       hass().updateHass({
-        selectedTheme: theme ? "mock" : "default",
+        selectedTheme: { theme: theme ? "mock" : "default" },
         themes: {
           ...hass().themes,
           themes: {
@@ -264,7 +269,7 @@ export const provideHass = (
       applyThemesOnElement(
         document.documentElement,
         themes,
-        selectedTheme as string
+        selectedTheme!.theme
       );
     },
 

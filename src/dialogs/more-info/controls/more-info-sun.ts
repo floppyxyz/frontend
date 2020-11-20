@@ -14,7 +14,7 @@ import { HomeAssistant } from "../../../types";
 
 @customElement("more-info-sun")
 class MoreInfoSun extends LitElement {
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property() public stateObj?: HassEntity;
 
@@ -71,6 +71,12 @@ class MoreInfoSun extends LitElement {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+      }
+      ha-relative-time {
+        display: inline-block;
+      }
+      ha-relative-time::first-letter {
+        text-transform: lowercase;
       }
     `;
   }

@@ -2,8 +2,8 @@ import { html } from "@polymer/polymer/lib/utils/html-tag";
 /* eslint-plugin-disable lit */
 import { PolymerElement } from "@polymer/polymer/polymer-element";
 import "../../../src/components/ha-card";
-import "../../../src/dialogs/more-info/controls/more-info-content";
 import "../../../src/state-summary/state-card-content";
+import "../../../src/dialogs/more-info/more-info-content";
 
 class DemoMoreInfo extends PolymerElement {
   static get template() {
@@ -16,21 +16,19 @@ class DemoMoreInfo extends PolymerElement {
 
         ha-card {
           width: 333px;
+          padding: 20px 24px;
         }
 
         state-card-content {
           display: block;
-          padding: 16px;
-        }
-
-        more-info-content {
-          padding: 0 16px;
+          margin-bottom: 16px;
         }
 
         pre {
           width: 400px;
-          margin: 16px;
+          margin: 0 16px;
           overflow: auto;
+          color: var(--primary-text-color);
         }
 
         @media only screen and (max-width: 800px) {
@@ -38,7 +36,7 @@ class DemoMoreInfo extends PolymerElement {
             flex-direction: column;
           }
           pre {
-            margin-left: 0;
+            margin: 16px 0;
           }
         }
       </style>

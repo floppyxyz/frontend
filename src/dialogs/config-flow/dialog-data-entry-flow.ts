@@ -1,27 +1,31 @@
 import "@material/mwc-button";
 import "@polymer/paper-dialog-scrollable/paper-dialog-scrollable";
-import "../../components/ha-icon-button";
-import "../../components/ha-circular-progress";
-import "@polymer/paper-tooltip/paper-tooltip";
 import type { UnsubscribeFunc } from "home-assistant-js-websocket";
 import {
   css,
   CSSResultArray,
   customElement,
   html,
+  internalProperty,
   LitElement,
-  property,
   PropertyValues,
   TemplateResult,
 } from "lit-element";
+import { fireEvent } from "../../common/dom/fire_event";
+import { computeRTL } from "../../common/util/compute_rtl";
+import "../../components/ha-circular-progress";
 import "../../components/ha-dialog";
 import "../../components/ha-form/ha-form";
+import "../../components/ha-icon-button";
 import "../../components/ha-markdown";
 import {
   AreaRegistryEntry,
   subscribeAreaRegistry,
 } from "../../data/area_registry";
-import type { DataEntryFlowStep } from "../../data/data_entry_flow";
+import type {
+  DataEntryFlowProgressedEvent,
+  DataEntryFlowStep,
+} from "../../data/data_entry_flow";
 import {
   DeviceRegistryEntry,
   subscribeDeviceRegistry,
@@ -35,6 +39,7 @@ import "./step-flow-external";
 import "./step-flow-form";
 import "./step-flow-loading";
 import "./step-flow-pick-handler";
+import "./step-flow-progress";
 
 let instance = 0;
 
@@ -52,23 +57,23 @@ declare global {
 class DataEntryFlowDialog extends LitElement {
   public hass!: HomeAssistant;
 
-  @property() private _params?: DataEntryFlowDialogParams;
+  @internalProperty() private _params?: DataEntryFlowDialogParams;
 
-  @property() private _loading = true;
+  @internalProperty() private _loading = true;
 
   private _instance = instance;
 
-  @property() private _step:
+  @internalProperty() private _step:
     | DataEntryFlowStep
     | undefined
     // Null means we need to pick a config flow
     | null;
 
-  @property() private _devices?: DeviceRegistryEntry[];
+  @internalProperty() private _devices?: DeviceRegistryEntry[];
 
-  @property() private _areas?: AreaRegistryEntry[];
+  @internalProperty() private _areas?: AreaRegistryEntry[];
 
-  @property() private _handlers?: string[];
+  @internalProperty() private _handlers?: string[];
 
   private _unsubAreas?: UnsubscribeFunc;
 
@@ -113,6 +118,17 @@ class DataEntryFlowDialog extends LitElement {
     this._loading = false;
   }
 
+  public closeDialog() {
+    if (this._step) {
+      this._flowDone();
+    } else if (this._step === null) {
+      // Flow aborted during picking flow
+      this._step = undefined;
+      this._params = undefined;
+    }
+    fireEvent(this, "dialog-closed", { dialog: this.localName });
+  }
+
   protected render(): TemplateResult {
     if (!this._params) {
       return html``;
@@ -121,7 +137,7 @@ class DataEntryFlowDialog extends LitElement {
     return html`
       <ha-dialog
         open
-        @closing=${this._close}
+        @closed=${this.closeDialog}
         scrimClickAction
         escapeKeyAction
         hideActions
@@ -147,6 +163,7 @@ class DataEntryFlowDialog extends LitElement {
                   )}
                   icon="hass:close"
                   dialogAction="close"
+                  ?rtl=${computeRTL(this.hass)}
                 ></ha-icon-button>
                 ${this._step === null
                   ? // Show handler picker
@@ -182,6 +199,14 @@ class DataEntryFlowDialog extends LitElement {
                         .hass=${this.hass}
                       ></step-flow-abort>
                     `
+                  : this._step.type === "progress"
+                  ? html`
+                      <step-flow-progress
+                        .flowConfig=${this._params.flowConfig}
+                        .step=${this._step}
+                        .hass=${this.hass}
+                      ></step-flow-progress>
+                    `
                   : this._devices === undefined || this._areas === undefined
                   ? // When it's a create entry result, we will fetch device & area registry
                     html` <step-flow-loading></step-flow-loading> `
@@ -202,6 +227,19 @@ class DataEntryFlowDialog extends LitElement {
 
   protected firstUpdated(changedProps: PropertyValues) {
     super.firstUpdated(changedProps);
+    this.hass.connection.subscribeEvents<DataEntryFlowProgressedEvent>(
+      async (ev) => {
+        if (ev.data.flow_id !== this._step?.flow_id) {
+          return;
+        }
+        const step = await this._params!.flowConfig.fetchFlow(
+          this.hass,
+          this._step?.flow_id
+        );
+        this._processStep(step);
+      },
+      "data_entry_flow_progressed"
+    );
     this.addEventListener("flow-update", (ev) => {
       const { step, stepPromise } = (ev as any).detail;
       this._processStep(step || stepPromise);
@@ -295,16 +333,6 @@ class DataEntryFlowDialog extends LitElement {
     }
   }
 
-  private _close(): void {
-    if (this._step) {
-      this._flowDone();
-    } else if (this._step === null) {
-      // Flow aborted during picking flow
-      this._step = undefined;
-      this._params = undefined;
-    }
-  }
-
   static get styles(): CSSResultArray {
     return [
       haStyleDialog,
@@ -317,6 +345,10 @@ class DataEntryFlowDialog extends LitElement {
           position: absolute;
           top: 0;
           right: 0;
+        }
+        ha-icon-button[rtl] {
+          right: auto;
+          left: 0;
         }
       `,
     ];

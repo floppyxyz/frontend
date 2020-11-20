@@ -10,6 +10,10 @@ export const coreCards: Card[] = [
     showElement: true,
   },
   {
+    type: "calendar",
+    showElement: true,
+  },
+  {
     type: "entities",
     showElement: true,
   },
@@ -88,10 +92,16 @@ export const coreCards: Card[] = [
     type: "entity-filter",
   },
   {
+    type: "grid",
+  },
+  {
     type: "horizontal-stack",
   },
   {
     type: "iframe",
+  },
+  {
+    type: "logbook",
   },
   {
     type: "vertical-stack",

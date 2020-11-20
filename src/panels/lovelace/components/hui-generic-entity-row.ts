@@ -26,7 +26,7 @@ import { hasAction } from "../common/has-action";
 import { createEntityNotFoundWarning } from "./hui-warning";
 
 class HuiGenericEntityRow extends LitElement {
-  @property() public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass?: HomeAssistant;
 
   @property() public config?: EntitiesCardEntityConfig;
 
@@ -95,6 +95,13 @@ class HuiGenericEntityRow extends LitElement {
                       <ha-relative-time
                         .hass=${this.hass}
                         .datetime=${stateObj.last_changed}
+                      ></ha-relative-time>
+                    `
+                  : this.config.secondary_info === "last-updated"
+                  ? html`
+                      <ha-relative-time
+                        .hass=${this.hass}
+                        .datetime=${stateObj.last_updated}
                       ></ha-relative-time>
                     `
                   : this.config.secondary_info === "last-triggered"

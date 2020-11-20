@@ -9,7 +9,9 @@ import {
   TemplateResult,
 } from "lit-element";
 import { until } from "lit-html/directives/until";
-import hassAttributeUtil from "../util/hass-attributes-util";
+import hassAttributeUtil, {
+  formatAttributeName,
+} from "../util/hass-attributes-util";
 
 let jsYamlPromise: Promise<typeof import("js-yaml")>;
 
@@ -17,7 +19,7 @@ let jsYamlPromise: Promise<typeof import("js-yaml")>;
 class HaAttributes extends LitElement {
   @property() public stateObj?: HassEntity;
 
-  @property() public extraFilters?: string;
+  @property({ attribute: "extra-filters" }) public extraFilters?: string;
 
   protected render(): TemplateResult {
     if (!this.stateObj) {
@@ -33,7 +35,9 @@ class HaAttributes extends LitElement {
         ).map(
           (attribute) => html`
             <div class="data-entry">
-              <div class="key">${attribute.replace(/_/g, " ")}</div>
+              <div class="key">
+                ${formatAttributeName(attribute)}
+              </div>
               <div class="value">
                 ${this.formatAttribute(attribute)}
               </div>
@@ -59,12 +63,16 @@ class HaAttributes extends LitElement {
         justify-content: space-between;
       }
       .data-entry .value {
-        max-width: 200px;
+        max-width: 50%;
         overflow-wrap: break-word;
+        text-align: right;
+      }
+      .key {
+        flex-grow: 1;
       }
       .attribution {
         color: var(--secondary-text-color);
-        text-align: right;
+        text-align: center;
       }
       pre {
         font-family: inherit;

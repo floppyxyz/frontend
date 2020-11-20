@@ -46,15 +46,15 @@
     "state_badge": {
         "alarm_control_panel": {
             "armed": "Gewapen",
-            "armed_away": "Gewapen",
+            "armed_away": "Aktief",
             "armed_custom_bypass": "Gewapen",
             "armed_home": "Gewapen",
-            "armed_night": "Gewapen",
+            "armed_night": "Aktief",
             "arming": "Bewapen Tans",
             "disarmed": "Ontwapen",
             "disarming": "Ontwapen",
             "pending": "Hangend",
-            "triggered": "Aktief"
+            "triggered": "Lui"
         },
         "default": {
             "entity_not_found": "Entiteit nie gevind nie",
@@ -324,7 +324,7 @@
         "auth_store": {
             "ask": "Wil u hierdie aanmelding stoor?",
             "confirm": "Stoor aanmelding",
-            "decline": "Nee dankie"
+            "decline": "Nee"
         },
         "card": {
             "alarm_control_panel": {
@@ -440,6 +440,7 @@
         "common": {
             "cancel": "Kanselleer",
             "close": "Sluit",
+            "copied": "Copiato",
             "loading": "Laai tans",
             "save": "Stoor"
         },
@@ -467,8 +468,27 @@
                 }
             },
             "history_charts": {
-                "loading_history": "Laai tans staatsgeskiedenis ...",
-                "no_history_found": "Geen staatgeskiedenis gevind nie."
+                "loading_history": "Laai tans toestandsgeskiedenis ...",
+                "no_history_found": "Geen toestandsgeskiedenis gevind nie."
+            },
+            "media-browser": {
+                "class": {
+                    "composer": "Compositore",
+                    "directory": "Libreria",
+                    "episode": "Episodio",
+                    "game": "Gioco",
+                    "genre": "Genere",
+                    "image": "Immagine",
+                    "movie": "Film",
+                    "music": "Musica",
+                    "playlist": "Playlist",
+                    "podcast": "Podcast",
+                    "season": "Stagione",
+                    "track": "Traccia",
+                    "tv_show": "Programma televisivo",
+                    "url": "URL",
+                    "video": "Video"
+                }
             },
             "related-items": {
                 "area": "Area",
@@ -509,17 +529,17 @@
                 "dismiss": "Ontslaan",
                 "editor": {
                     "confirm_delete": "Is u seker dat u hierdie inskrywing wil verwyder?",
-                    "delete": "SKRAP",
+                    "delete": "Verwyder",
                     "enabled_cause": "ge deaktiveer",
                     "enabled_description": "Ge deaktiveerde entiteite sal nie by die Huisassistent gevoeg word nie.",
                     "enabled_label": "Aktiveer entiteit",
                     "entity_id": "Entiteit ID",
-                    "icon": "Ikoon oorskry",
+                    "icon": "Ikoon",
                     "icon_error": "Ikone moet in die formaat 'voorvoegsel: iconname' wees, byvoorbeeld 'mdi: home'",
-                    "name": "Naam Oorheers",
+                    "name": "Naam",
                     "note": "Let wel: dit werk dalk nog nie met alle integrasies nie.",
                     "unavailable": "Hierdie entiteit is nie tans beskikbaar nie.",
-                    "update": "OPDATEER"
+                    "update": "Opdateer"
                 },
                 "no_unique_id": "Hierdie entiteit het nie 'n unieke ID nie, daarom kan die instellings nie vanuit die UI bestuur word nie.",
                 "related": "Verwante",
@@ -640,17 +660,17 @@
                     "link_profile_page": "jou profiel bladsy"
                 },
                 "areas": {
-                    "caption": "Gebiedsregister",
+                    "caption": "Areas",
                     "description": "Oorsig van alle gebiede in u huis.",
                     "editor": {
                         "create": "SKEP",
                         "default_name": "Nuwe Gebied",
                         "delete": "SKRAP",
-                        "update": "OPDATEER"
+                        "update": "Opdateer"
                     },
                     "picker": {
                         "create_area": "SKEP GEBIED",
-                        "header": "Gebiedsregister",
+                        "header": "Areas",
                         "integrations_page": "Integrasies bladsy",
                         "introduction": "Gebiede word gebruik om toestelle te organiseer gebaseer op waar hulle is. Hierdie inligting sal regdeur Home Assistant gebruik word om u te help om u koppelvlak, toestemmings en integrasies met ander stelsels te organiseer.",
                         "introduction2": "Om toestelle in 'n gebied te plaas, gebruik die skakel hieronder om na die integrasies bladsy toe te gaan en klik dan op 'n opgestelde integrasie om na die toestelkaarte toe te gaan.",
@@ -694,7 +714,7 @@
                                     "wait_template": "Wag Templaat"
                                 }
                             },
-                            "unsupported_action": "Ongesteunde aksie: {action}"
+                            "unsupported_action": "Geen UI-ondersteuning vir aksie nie: {action}"
                         },
                         "alias": "Naam",
                         "conditions": {
@@ -715,8 +735,8 @@
                                     "value_template": "Waarde templaat (opsioneel)"
                                 },
                                 "state": {
-                                    "label": "Staat",
-                                    "state": "Staat"
+                                    "label": "Toestand",
+                                    "state": "Toestand"
                                 },
                                 "sun": {
                                     "after": "Na:",
@@ -751,6 +771,9 @@
                         "introduction": "Gebruik outomatisasies om jou huis lewend te maak",
                         "load_error_not_editable": "Slegs outomatisasies in automations.yaml kan verander word.",
                         "load_error_unknown": "Kon nie outomatisering laai nie ({err_no}).",
+                        "modes": {
+                            "parallel": "Parallel"
+                        },
                         "save": "Stoor",
                         "triggers": {
                             "add": "Voeg sneller by",
@@ -764,6 +787,7 @@
                             "type_select": "Sneller tipe",
                             "type": {
                                 "event": {
+                                    "context_user_pick": "Voeg gebruiker toe",
                                     "event_data": "Gebeurtenis data",
                                     "event_type": "Gebeurtenis tipe",
                                     "label": "Gebeurtenis"
@@ -796,7 +820,7 @@
                                 "state": {
                                     "for": "Vir",
                                     "from": "Vanaf",
-                                    "label": "Staat",
+                                    "label": "Toestand",
                                     "to": "Tot en met"
                                 },
                                 "sun": {
@@ -1012,6 +1036,16 @@
                     }
                 },
                 "info": {
+                    "system_health": {
+                        "checks": {
+                            "homeassistant": {
+                                "os_name": "Bedryfstelselnaam",
+                                "os_version": "Bedryfstelsel Weergawe",
+                                "timezone": "Tydsone",
+                                "version": "Weergawe"
+                            }
+                        }
+                    },
                     "title": "Inligting"
                 },
                 "integrations": {
@@ -1021,6 +1055,7 @@
                         "delete": "Verwyder",
                         "delete_confirm": "Is u seker u wil hierdie integrasie skrap?",
                         "device_unavailable": "toestel nie beskikbaar nie",
+                        "documentation": "Dokumentasie",
                         "entity_unavailable": "entiteit nie beskikbaar nie",
                         "firmware": "Fermware: {version}",
                         "hub": "Gekonnekteer via",
@@ -1056,7 +1091,7 @@
                         "confirm_delete_ignore": "Dit sal die integrasie weer in u ontdekte integrasies laat verskyn wanneer dit ontdek word. Dit kan herbegin of 'n geruime tyd neem.",
                         "confirm_delete_ignore_title": "Hou op om {name} ignoreer?",
                         "confirm_ignore": "Is u seker dat u nie hierdie integrasie wil instel nie? U kan dit ongedaan maak deur op die 'Wys geïgnoreerde integrasies' in die oorloopmenu regs bo te klik.",
-                        "confirm_ignore_title": "Ignoreer ontdekking van {naam}?",
+                        "confirm_ignore_title": "Ignoreer ontdekking van {name}?",
                         "hide_ignored": "Verberg geïgnoreerde integrasies",
                         "ignore": "Ignoreer",
                         "ignored": "Geïgnoreer",
@@ -1094,7 +1129,7 @@
                             "show_sidebar": "Wys in Kantbalk",
                             "title": "Kantbalk-titel",
                             "update": "Opdateer",
-                            "url": "Url",
+                            "url": "URL",
                             "url_error_msg": "Die url kan nie spasies of spesiale karakters bevat nie, behalwe vir _ en -"
                         },
                         "picker": {
@@ -1120,8 +1155,8 @@
                             "dismiss": "maak toe",
                             "new_resource": "Voeg nuwe hulpbronne by",
                             "update": "opdateer",
-                            "url": "Url",
-                            "url_error_msg": "Url is n vereiste",
+                            "url": "URL",
+                            "url_error_msg": "URL is n vereiste",
                             "warning_header": "Wees versigtig!",
                             "warning_text": "Dit kan gevaarlik wees om hulpbronne by te voeg, maak seker dat u die bron van die bron ken en vertrou. Swak hulpbronne kan u stelsel ernstig benadeel."
                         },
@@ -1129,7 +1164,7 @@
                             "add_resource": "Voeg hulpbron by",
                             "headers": {
                                 "type": "tipe",
-                                "url": "Url"
+                                "url": "URL"
                             }
                         },
                         "refresh_body": "U moet die bladsy verfris om die verwydering te voltooi, wil u nou verfris?",
@@ -1165,7 +1200,7 @@
                             "add": "Voeg 'n toestel by",
                             "delete": "Verwyder toestel",
                             "header": "toestelle",
-                            "introduction": "Voeg die toestelle wat u wil insluit in u toneel by. Stel al die toestelle op die staat wat u wil hê vir hierdie toneel."
+                            "introduction": "Voeg die toestelle wat u wil insluit in u toneel by. Stel toestande van toestelle na verlange in vir hierdie toneel."
                         },
                         "entities": {
                             "add": "Voeg 'n entiteit by",
@@ -1208,11 +1243,13 @@
                         "sequence_sentence": "Die volgorde van aksies van hierdie skrip."
                     },
                     "picker": {
+                        "duplicate": "Dupliseer",
                         "edit_script": "Redigeer skrip",
                         "trigger_script": "Sneller skrip"
                     }
                 },
                 "server_control": {
+                    "caption": "Bedienerkontroles",
                     "section": {
                         "reloading": {
                             "person": "Herlaai persone",
@@ -1276,7 +1313,7 @@
                         "create_group": "Zigbee Home Automation - Skep 'n groep",
                         "create_group_details": "Voer die nodige besonderhede in om 'n nuwe zigbeegroep te skep",
                         "creating_group": "Skep 'n groep",
-                        "description": "Skep en verander Zigbee-groepe",
+                        "description": "Bestuur Zigbee-groepe",
                         "group_details": "Hier is al die besonderhede vir die geselekteerde Zigbee groep.",
                         "group_id": "Groep-ID",
                         "group_info": "Groeps Inligting",
@@ -1325,7 +1362,7 @@
                     "edit_home_zone_narrow": "Die ligging van u tuissone kan vanaf die algemene konfigurasiebladsy verander word. Die radius van die Tuis-sone kan nog nie vanaf die voorkant verander word nie. Wil u na die algemene opset gaan?",
                     "go_to_core_config": "Gaan na Algemene konfigurasie?",
                     "home_zone_core_config": "Die ligging van u tuissone kan vanaf die algemene konfigurasiebladsy verander word. Die radius van die Tuis-sone kan nog nie vanaf die voorkant verander word nie. Wil u na die algemene opset gaan?",
-                    "introduction": "Met sones kan u sekere streke op aarde spesifiseer. As 'n persoon binne 'n sone is, neem die staat die naam van die sone af. Sones kan ook as 'n sneller of toestand gebruik word binne outomatiseringsinstellings.",
+                    "introduction": "Met sones kan u sekere streke op aarde spesifiseer. As 'n persoon binne 'n sone is, neem die toestand die sonenaam aan. Sones kan ook as 'n sneller of toestand gebruik word in outomatiseringsinstellings.",
                     "no_zones_created_yet": "Lyk asof jy nog geen sones geskep het nie."
                 },
                 "zwave": {
@@ -1349,7 +1386,13 @@
                         "network_stopped": "Z-Wave Netwerk het Gestop"
                     },
                     "node_config": {
+                        "config_value": "Konfigurasiewaarde",
+                        "header": "Knooppuntkonfigurasieopsies",
                         "set_config_parameter": "Stel Config-parameter in"
+                    },
+                    "node_management": {
+                        "add_to_group": "Voeg by Groep",
+                        "remove_from_group": "Verwyder van Groep"
                     },
                     "services": {
                         "add_node": "Voeg Knooppunt By",
@@ -1357,7 +1400,7 @@
                         "cancel_command": "Kanselleer Opdrag",
                         "heal_network": "Herstel Netwerk",
                         "remove_node": "Verwyder Knooppunt",
-                        "save_config": "Stoor Instellings",
+                        "save_config": "Stoor Konfigurasie",
                         "soft_reset": "Sagte Herstel",
                         "start_network": "Skakel Netwerk Aan",
                         "stop_network": "Stop Netwerk",
@@ -1431,6 +1474,9 @@
                         "add_item": "Voeg item by",
                         "checked_items": "Gemerkte items",
                         "clear_items": "Maak die gemerkte items skoon"
+                    },
+                    "starting": {
+                        "description": "Home Assistant begin tans, wag asseblief ..."
                     }
                 },
                 "changed_toast": {
@@ -1438,9 +1484,23 @@
                     "refresh": "Herlaai"
                 },
                 "editor": {
+                    "action-editor": {
+                        "actions": {
+                            "url": "URL"
+                        }
+                    },
                     "card": {
                         "button": {
                             "name": "Knoppie"
+                        },
+                        "generic": {
+                            "url": "URL"
+                        },
+                        "humidifier": {
+                            "description": "Die Luchtbevochtigerkaart verleen beheer oor u lugbevochtiger-entiteit. Hiermee kan u die humiditeit en modus van die entiteit verander."
+                        },
+                        "iframe": {
+                            "name": "Webblad"
                         },
                         "shopping-list": {
                             "integration_not_loaded": "Hierdie kaart vereis die ' shopping_list ' integrasie wat opgestel moet word."
@@ -1448,7 +1508,8 @@
                     },
                     "edit_card": {
                         "add": "Voeg Kaart by",
-                        "delete": "Skrap",
+                        "delete": "Skrap kaart",
+                        "duplicate": "Dupliseer Kaart",
                         "edit": "Wysig",
                         "header": "Kaart opstelling",
                         "move": "Skuif",
@@ -1513,9 +1574,10 @@
                     "configure_ui": "Stel gebruikerskoppelvlak op",
                     "exit_edit_mode": "Verlaat UI-wysigingsmodus",
                     "help": "Help",
-                    "refresh": "Verfris"
+                    "refresh": "Verfris",
+                    "start_conversation": "Begin gesprek"
                 },
-                "reload_lovelace": "Herlaai Lovelace",
+                "reload_lovelace": "Herlaai UI",
                 "unused_entities": {
                     "available_entities": "Dit is die entiteite wat u beskikbaar het, maar is nog nie in u Lovelace UI nie.",
                     "domain": "Domein",

@@ -1,46 +1,47 @@
-import {
-  customElement,
-  LitElement,
-  property,
-  CSSResultArray,
-  css,
-  TemplateResult,
-  html,
-  PropertyValues,
-} from "lit-element";
-import { styleMap } from "lit-html/directives/style-map";
-
-import "@polymer/app-layout/app-header-layout/app-header-layout";
-import "@polymer/app-layout/app-header/app-header";
-import "@polymer/app-layout/app-toolbar/app-toolbar";
 import "@material/mwc-checkbox";
 import "@material/mwc-formfield";
-
-import "../../components/ha-menu-button";
+import "@polymer/app-layout/app-header/app-header";
+import "@polymer/app-layout/app-toolbar/app-toolbar";
+import {
+  css,
+  CSSResultArray,
+  customElement,
+  html,
+  internalProperty,
+  LitElement,
+  property,
+  PropertyValues,
+  TemplateResult,
+} from "lit-element";
+import { styleMap } from "lit-html/directives/style-map";
+import { LocalStorage } from "../../common/decorators/local-storage";
+import { HASSDomEvent } from "../../common/dom/fire_event";
 import "../../components/ha-card";
-import "./ha-full-calendar";
-
+import "../../components/ha-menu-button";
+import { fetchCalendarEvents, getCalendars } from "../../data/calendar";
+import "../../layouts/ha-app-layout";
+import { haStyle } from "../../resources/styles";
 import type {
-  HomeAssistant,
-  SelectedCalendar,
+  Calendar,
   CalendarEvent,
   CalendarViewChanged,
-  Calendar,
+  HomeAssistant,
 } from "../../types";
-import { haStyle } from "../../resources/styles";
-import { HASSDomEvent } from "../../common/dom/fire_event";
-import { getCalendars, fetchCalendarEvents } from "../../data/calendar";
+import "./ha-full-calendar";
 
 @customElement("ha-panel-calendar")
 class PanelCalendar extends LitElement {
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property({ type: Boolean, reflect: true })
   public narrow!: boolean;
 
-  @property() private _calendars: SelectedCalendar[] = [];
+  @internalProperty() private _calendars: Calendar[] = [];
 
-  @property() private _events: CalendarEvent[] = [];
+  @internalProperty() private _events: CalendarEvent[] = [];
+
+  @LocalStorage("deSelectedCalendars", true)
+  private _deSelectedCalendars: string[] = [];
 
   private _start?: Date;
 
@@ -48,21 +49,12 @@ class PanelCalendar extends LitElement {
 
   protected firstUpdated(changedProps: PropertyValues): void {
     super.firstUpdated(changedProps);
-    this._calendars = getCalendars(this.hass).map((calendar) => ({
-      selected: true,
-      calendar,
-    }));
-
-    if (!this._start || !this._end) {
-      return;
-    }
-
-    this._fetchEvents(this._start, this._end, this._selectedCalendars);
+    this._calendars = getCalendars(this.hass);
   }
 
   protected render(): TemplateResult {
     return html`
-      <app-header-layout has-scrolling-region>
+      <ha-app-layout>
         <app-header fixed slot="header">
           <app-toolbar>
             <ha-menu-button
@@ -83,19 +75,22 @@ class PanelCalendar extends LitElement {
             </div>
             ${this._calendars.map(
               (selCal) =>
-                html`<div>
-                  <mwc-formfield .label=${selCal.calendar.name}>
-                    <mwc-checkbox
-                      style=${styleMap({
-                        "--mdc-theme-secondary":
-                          selCal.calendar.backgroundColor,
-                      })}
-                      .value=${selCal.calendar.entity_id}
-                      .checked=${selCal.selected}
-                      @change=${this._handleToggle}
-                    ></mwc-checkbox>
-                  </mwc-formfield>
-                </div>`
+                html`
+                  <div>
+                    <mwc-formfield .label=${selCal.name}>
+                      <mwc-checkbox
+                        style=${styleMap({
+                          "--mdc-theme-secondary": selCal.backgroundColor!,
+                        })}
+                        .value=${selCal.entity_id}
+                        .checked=${!this._deSelectedCalendars.includes(
+                          selCal.entity_id
+                        )}
+                        @change=${this._handleToggle}
+                      ></mwc-checkbox>
+                    </mwc-formfield>
+                  </div>
+                `
             )}
           </div>
           <ha-full-calendar
@@ -105,14 +100,14 @@ class PanelCalendar extends LitElement {
             @view-changed=${this._handleViewChanged}
           ></ha-full-calendar>
         </div>
-      </app-header-layout>
+      </ha-app-layout>
     `;
   }
 
   private get _selectedCalendars(): Calendar[] {
     return this._calendars
-      .filter((selCal) => selCal.selected)
-      .map((cal) => cal.calendar);
+      .filter((selCal) => !this._deSelectedCalendars.includes(selCal.entity_id))
+      .map((cal) => cal);
   }
 
   private async _fetchEvents(
@@ -129,24 +124,28 @@ class PanelCalendar extends LitElement {
 
   private async _handleToggle(ev): Promise<void> {
     const results = this._calendars.map(async (cal) => {
-      if (ev.target.value !== cal.calendar.entity_id) {
+      if (ev.target.value !== cal.entity_id) {
         return cal;
       }
 
       const checked = ev.target.checked;
 
       if (checked) {
-        const events = await this._fetchEvents(this._start!, this._end!, [
-          cal.calendar,
-        ]);
+        const events = await this._fetchEvents(this._start!, this._end!, [cal]);
         this._events = [...this._events, ...events];
+        this._deSelectedCalendars = this._deSelectedCalendars.filter(
+          (deCal) => deCal !== cal.entity_id
+        );
       } else {
         this._events = this._events.filter(
-          (event) => event.calendar !== cal.calendar.entity_id
+          (event) => event.calendar !== cal.entity_id
         );
+        this._deSelectedCalendars = [
+          ...this._deSelectedCalendars,
+          cal.entity_id,
+        ];
       }
 
-      cal.selected = checked;
       return cal;
     });
 
@@ -184,7 +183,7 @@ class PanelCalendar extends LitElement {
         }
 
         :host(:not([narrow])) .content {
-          height: calc(100vh - 64px);
+          height: calc(100vh - var(--header-height));
         }
 
         .calendar-list {

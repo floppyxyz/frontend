@@ -22,6 +22,7 @@ documentContainer.innerHTML = `<custom-style>
       --primary-text-color: #212121;
       --secondary-text-color: #727272;
       --text-primary-color: #ffffff;
+      --text-light-primary-color: #212121;
       --disabled-text-color: #bdbdbd;
 
       /* main interface colors */
@@ -34,7 +35,7 @@ documentContainer.innerHTML = `<custom-style>
       --scrollbar-thumb-color: rgb(194, 194, 194);
 
       --error-color: #db4437;
-      --warning-color: #f4b400;
+      --warning-color: #FF9800;
       --success-color: #0f9d58;
       --info-color: #4285f4;
 
@@ -46,6 +47,9 @@ documentContainer.innerHTML = `<custom-style>
       --card-background-color: #ffffff;
       --primary-background-color: #fafafa;
       --secondary-background-color: #e5e5e5; /* behind the cards on state */
+
+      /* for header */
+      --header-height: 56px;
 
       /* for label-badge */
       --label-badge-red: #DF4C1E;
@@ -81,10 +85,7 @@ documentContainer.innerHTML = `<custom-style>
       --light-primary-opacity: 1.0;
 
       /* set our slider style */
-      --ha-paper-slider-pin-font-size: 15px;
-
-      /* markdown styles */
-      --markdown-code-background-color: #f6f8fa;
+      --ha-slider-pin-font-size: 15px;
 
       /* rgb */
       --rgb-primary-color: 3, 169, 244;
@@ -111,6 +112,11 @@ documentContainer.innerHTML = `<custom-style>
 
     paper-dialog-scrollable.can-scroll > .scrollable {
       -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* for paper-dialog */
+    iron-overlay-backdrop {
+      backdrop-filter: var(--dialog-backdrop-filter, none);
     }
   </style>
 </custom-style>`;

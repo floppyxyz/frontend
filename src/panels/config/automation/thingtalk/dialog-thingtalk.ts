@@ -10,6 +10,7 @@ import {
   html,
   LitElement,
   property,
+  internalProperty,
   query,
   TemplateResult,
 } from "lit-element";
@@ -19,7 +20,7 @@ import { convertThingTalk } from "../../../../data/cloud";
 import type { PolymerChangedEvent } from "../../../../polymer-types";
 import { haStyle, haStyleDialog } from "../../../../resources/styles";
 import type { HomeAssistant } from "../../../../types";
-import type { ThingtalkDialogParams } from "../show-dialog-thingtalk";
+import type { ThingtalkDialogParams } from "./show-dialog-thingtalk";
 import "./ha-thingtalk-placeholders";
 import type { PlaceholderValues } from "./ha-thingtalk-placeholders";
 
@@ -37,28 +38,33 @@ export interface PlaceholderContainer {
 
 @customElement("ha-dialog-thinktalk")
 class DialogThingtalk extends LitElement {
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
-  @property() private _error?: string;
+  @internalProperty() private _error?: string;
 
-  @property() private _params?: ThingtalkDialogParams;
+  @internalProperty() private _params?: ThingtalkDialogParams;
 
-  @property() private _submitting = false;
+  @internalProperty() private _submitting = false;
 
-  @property() private _opened = false;
+  @internalProperty() private _opened = false;
 
-  @property() private _placeholders?: PlaceholderContainer;
+  @internalProperty() private _placeholders?: PlaceholderContainer;
 
   @query("#input") private _input?: PaperInputElement;
 
-  private _value!: string;
+  private _value?: string;
 
   private _config!: Partial<AutomationConfig>;
 
-  public showDialog(params: ThingtalkDialogParams): void {
+  public async showDialog(params: ThingtalkDialogParams): Promise<void> {
     this._params = params;
     this._error = undefined;
     this._opened = true;
+    if (params.input) {
+      this._value = params.input;
+      await this.updateComplete;
+      this._generate();
+    }
   }
 
   protected render(): TemplateResult {
@@ -84,13 +90,22 @@ class DialogThingtalk extends LitElement {
         .opened=${this._opened}
         @opened-changed=${this._openedChanged}
       >
-        <h2>Create a new automation</h2>
+        <h2>
+          ${this.hass.localize(
+            `ui.panel.config.automation.thingtalk.task_selection.header`
+          )}
+        </h2>
         <paper-dialog-scrollable>
           ${this._error ? html` <div class="error">${this._error}</div> ` : ""}
-          Type below what this automation should do, and we will try to convert
-          it into a Home Assistant automation. (only English is supported for
-          now)<br /><br />
-          For example:
+          ${this.hass.localize(
+            `ui.panel.config.automation.thingtalk.task_selection.introduction`
+          )}<br /><br />
+          ${this.hass.localize(
+            `ui.panel.config.automation.thingtalk.task_selection.language_note`
+          )}<br /><br />
+          ${this.hass.localize(
+            `ui.panel.config.automation.thingtalk.task_selection.for_example`
+          )}
           <ul @click=${this._handleExampleClick}>
             <li>
               <button class="link">
@@ -116,6 +131,7 @@ class DialogThingtalk extends LitElement {
           <paper-input
             id="input"
             label="What should this automation do?"
+            .value=${this._value}
             autofocus
             @keyup=${this._handleKeyUp}
           ></paper-input>
@@ -129,14 +145,17 @@ class DialogThingtalk extends LitElement {
         </paper-dialog-scrollable>
         <div class="paper-dialog-buttons">
           <mwc-button class="left" @click="${this._skip}">
-            Skip
+            ${this.hass.localize(`ui.common.skip`)}
           </mwc-button>
           <mwc-button @click="${this._generate}" .disabled=${this._submitting}>
-            <ha-circular-progress
-              ?active="${this._submitting}"
-              alt="Creating your automation..."
-            ></ha-circular-progress>
-            Create automation
+            ${this._submitting
+              ? html`<ha-circular-progress
+                  active
+                  size="small"
+                  title="Creating your automation..."
+                ></ha-circular-progress>`
+              : ""}
+            ${this.hass.localize(`ui.panel.config.automation.thingtalk.create`)}
           </mwc-button>
         </div>
       </ha-paper-dialog>
@@ -146,7 +165,9 @@ class DialogThingtalk extends LitElement {
   private async _generate() {
     this._value = this._input!.value as string;
     if (!this._value) {
-      this._error = "Enter a command or tap skip.";
+      this._error = this.hass.localize(
+        `ui.panel.config.automation.thingtalk.task_selection.error_empty`
+      );
       return;
     }
     this._submitting = true;
@@ -165,7 +186,9 @@ class DialogThingtalk extends LitElement {
     this._submitting = false;
 
     if (!Object.keys(config).length) {
-      this._error = "We couldn't create an automation for that (yet?).";
+      this._error = this.hass.localize(
+        `ui.panel.config.automation.thingtalk.task_selection.error_unsupported`
+      );
     } else if (Object.keys(placeholders).length) {
       this._config = config;
       this._placeholders = placeholders;
@@ -244,17 +267,6 @@ class DialogThingtalk extends LitElement {
         }
         mwc-button.left {
           margin-right: auto;
-        }
-        mwc-button ha-circular-progress {
-          width: 14px;
-          height: 14px;
-          margin-right: 20px;
-        }
-        ha-circular-progress {
-          display: none;
-        }
-        ha-circular-progress[active] {
-          display: block;
         }
         .error {
           color: var(--error-color);

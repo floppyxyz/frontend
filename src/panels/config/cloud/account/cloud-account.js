@@ -10,6 +10,7 @@ import { fetchCloudSubscriptionInfo } from "../../../../data/cloud";
 import "../../../../layouts/hass-subpage";
 import { EventsMixin } from "../../../../mixins/events-mixin";
 import LocalizeMixin from "../../../../mixins/localize-mixin";
+import { computeRTLDirection } from "../../../../common/util/compute_rtl";
 import "../../../../styles/polymer-ha-style";
 import "../../ha-config-section";
 import "./cloud-alexa-pref";
@@ -33,7 +34,6 @@ class CloudAccount extends EventsMixin(LocalizeMixin(PolymerElement)) {
         }
         .content {
           padding-bottom: 24px;
-          direction: ltr;
         }
         .account-row {
           display: flex;
@@ -61,12 +61,10 @@ class CloudAccount extends EventsMixin(LocalizeMixin(PolymerElement)) {
           color: var(--primary-color);
         }
       </style>
-      <hass-subpage header="[[localize('ui.panel.config.cloud.caption')]]">
+      <hass-subpage hass="[[hass]]" header="Home Assistant Cloud">
         <div class="content">
           <ha-config-section is-wide="[[isWide]]">
-            <span slot="header"
-              >[[localize('ui.panel.config.cloud.caption')]]</span
-            >
+            <span slot="header">Home Assistant Cloud</span>
             <div slot="introduction">
               <p>
                 [[localize('ui.panel.config.cloud.account.thank_you_note')]]
@@ -132,21 +130,25 @@ class CloudAccount extends EventsMixin(LocalizeMixin(PolymerElement)) {
             <cloud-remote-pref
               hass="[[hass]]"
               cloud-status="[[cloudStatus]]"
+              dir="[[_rtlDirection]]"
             ></cloud-remote-pref>
 
             <cloud-alexa-pref
               hass="[[hass]]"
               cloud-status="[[cloudStatus]]"
+              dir="[[_rtlDirection]]"
             ></cloud-alexa-pref>
 
             <cloud-google-pref
               hass="[[hass]]"
               cloud-status="[[cloudStatus]]"
+              dir="[[_rtlDirection]]"
             ></cloud-google-pref>
 
             <cloud-webhooks
               hass="[[hass]]"
               cloud-status="[[cloudStatus]]"
+              dir="[[_rtlDirection]]"
             ></cloud-webhooks>
           </ha-config-section>
         </div>
@@ -162,6 +164,10 @@ class CloudAccount extends EventsMixin(LocalizeMixin(PolymerElement)) {
       _subscription: {
         type: Object,
         value: null,
+      },
+      _rtlDirection: {
+        type: Boolean,
+        computed: "_computeRTLDirection(hass)",
       },
     };
   }
@@ -214,6 +220,10 @@ class CloudAccount extends EventsMixin(LocalizeMixin(PolymerElement)) {
     }
 
     return description;
+  }
+
+  _computeRTLDirection(hass) {
+    return computeRTLDirection(hass);
   }
 }
 

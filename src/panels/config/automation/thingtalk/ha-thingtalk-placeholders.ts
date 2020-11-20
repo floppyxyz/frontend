@@ -6,6 +6,7 @@ import {
   html,
   LitElement,
   property,
+  internalProperty,
   PropertyValues,
   TemplateResult,
 } from "lit-element";
@@ -63,7 +64,7 @@ interface DeviceEntitiesLookup {
 
 @customElement("ha-thingtalk-placeholders")
 export class ThingTalkPlaceholders extends SubscribeMixin(LitElement) {
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property() public opened!: boolean;
 
@@ -71,13 +72,13 @@ export class ThingTalkPlaceholders extends SubscribeMixin(LitElement) {
 
   @property() public placeholders!: PlaceholderContainer;
 
-  @property() private _error?: string;
+  @internalProperty() private _error?: string;
 
   private _deviceEntityLookup: DeviceEntitiesLookup = {};
 
-  @property() private _extraInfo: ExtraInfo = {};
+  @internalProperty() private _extraInfo: ExtraInfo = {};
 
-  @property() private _placeholderValues: PlaceholderValues = {};
+  @internalProperty() private _placeholderValues: PlaceholderValues = {};
 
   private _devices?: DeviceRegistryEntry[];
 
@@ -130,7 +131,11 @@ export class ThingTalkPlaceholders extends SubscribeMixin(LitElement) {
         .opened=${this.opened}
         @opened-changed="${this._openedChanged}"
       >
-        <h2>Great! Now we need to link some devices.</h2>
+        <h2>
+          ${this.hass.localize(
+            `ui.panel.config.automation.thingtalk.link_devices.header`
+          )}
+        </h2>
         <paper-dialog-scrollable>
           ${this._error ? html` <div class="error">${this._error}</div> ` : ""}
           ${Object.entries(this.placeholders).map(
@@ -167,8 +172,9 @@ export class ThingTalkPlaceholders extends SubscribeMixin(LitElement) {
                       ${extraInfo && extraInfo.manualEntity
                         ? html`
                             <h3>
-                              One or more devices have more than one matching
-                              entity, please pick the one you want to use.
+                              ${this.hass.localize(
+                                `ui.panel.config.automation.thingtalk.link_devices.ambiguous_entities`
+                              )}
                             </h3>
                             ${Object.keys(extraInfo.manualEntity).map(
                               (idx) => html`
@@ -225,7 +231,9 @@ export class ThingTalkPlaceholders extends SubscribeMixin(LitElement) {
                   }
                   return html`
                     <div class="error">
-                      Unknown placeholder<br />
+                      ${this.hass.localize(
+                        `ui.panel.config.automation.thingtalk.link_devices.unknown_placeholder`
+                      )}<br />
                       ${placeholder.domains}<br />
                       ${placeholder.fields.map(
                         (field) => html` ${field}<br /> `
@@ -238,10 +246,10 @@ export class ThingTalkPlaceholders extends SubscribeMixin(LitElement) {
         </paper-dialog-scrollable>
         <div class="paper-dialog-buttons">
           <mwc-button class="left" @click="${this.skip}">
-            Skip
+            ${this.hass.localize(`ui.common.skip`)}
           </mwc-button>
           <mwc-button @click="${this._done}" .disabled=${!this._isDone}>
-            Create automation
+            ${this.hass.localize(`ui.panel.config.automation.thingtalk.create`)}
           </mwc-button>
         </div>
       </ha-paper-dialog>

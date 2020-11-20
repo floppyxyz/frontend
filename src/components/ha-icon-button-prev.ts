@@ -1,6 +1,7 @@
 import {
   LitElement,
   property,
+  internalProperty,
   TemplateResult,
   html,
   customElement,
@@ -8,12 +9,17 @@ import {
 import { mdiChevronRight, mdiChevronLeft } from "@mdi/js";
 import "@material/mwc-icon-button/mwc-icon-button";
 import "./ha-svg-icon";
+import { HomeAssistant } from "../types";
 
 @customElement("ha-icon-button-prev")
 export class HaIconButtonPrev extends LitElement {
+  @property({ attribute: false }) public hass?: HomeAssistant;
+
   @property({ type: Boolean }) public disabled = false;
 
-  @property() private _icon = mdiChevronLeft;
+  @property() public label?: string;
+
+  @internalProperty() private _icon = mdiChevronLeft;
 
   public connectedCallback() {
     super.connectedCallback();
@@ -28,9 +34,14 @@ export class HaIconButtonPrev extends LitElement {
   }
 
   protected render(): TemplateResult {
-    return html`<mwc-icon-button .disabled=${this.disabled}>
-      <ha-svg-icon .path=${this._icon}></ha-svg-icon>
-    </mwc-icon-button> `;
+    return html`
+      <mwc-icon-button
+        .disabled=${this.disabled}
+        .label=${this.label || this.hass?.localize("ui.common.back") || "Back"}
+      >
+        <ha-svg-icon .path=${this._icon}></ha-svg-icon>
+      </mwc-icon-button>
+    `;
   }
 }
 

@@ -15,9 +15,15 @@ export interface EntityRegistryEntry {
 
 export interface ExtEntityRegistryEntry extends EntityRegistryEntry {
   unique_id: string;
-  capabilities: object;
+  capabilities: Record<string, unknown>;
   original_name?: string;
   original_icon?: string;
+}
+
+export interface UpdateEntityRegistryEntryResult {
+  entity_entry: ExtEntityRegistryEntry;
+  reload_delay?: number;
+  require_restart?: boolean;
 }
 
 export interface EntityRegistryEntryUpdateParams {
@@ -35,6 +41,17 @@ export const findBatteryEntity = (
     (entity) =>
       hass.states[entity.entity_id] &&
       hass.states[entity.entity_id].attributes.device_class === "battery"
+  );
+
+export const findBatteryChargingEntity = (
+  hass: HomeAssistant,
+  entities: EntityRegistryEntry[]
+): EntityRegistryEntry | undefined =>
+  entities.find(
+    (entity) =>
+      hass.states[entity.entity_id] &&
+      hass.states[entity.entity_id].attributes.device_class ===
+        "battery_charging"
   );
 
 export const computeEntityRegistryName = (
@@ -61,7 +78,7 @@ export const updateEntityRegistryEntry = (
   hass: HomeAssistant,
   entityId: string,
   updates: Partial<EntityRegistryEntryUpdateParams>
-): Promise<ExtEntityRegistryEntry> =>
+): Promise<UpdateEntityRegistryEntryResult> =>
   hass.callWS({
     type: "config/entity_registry/update",
     entity_id: entityId,
@@ -77,7 +94,7 @@ export const removeEntityRegistryEntry = (
     entity_id: entityId,
   });
 
-const fetchEntityRegistry = (conn) =>
+export const fetchEntityRegistry = (conn) =>
   conn.sendMessagePromise({
     type: "config/entity_registry/list",
   });

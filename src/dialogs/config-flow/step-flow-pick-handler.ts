@@ -8,6 +8,7 @@ import {
   html,
   LitElement,
   property,
+  internalProperty,
   TemplateResult,
 } from "lit-element";
 import { classMap } from "lit-html/directives/class-map";
@@ -19,8 +20,10 @@ import { LocalizeFunc } from "../../common/translations/localize";
 import "../../components/ha-icon-next";
 import { domainToName } from "../../data/integration";
 import { HomeAssistant } from "../../types";
+import { documentationUrl } from "../../util/documentation-url";
 import { FlowConfig } from "./show-dialog-data-entry-flow";
 import { configFlowContentStyles } from "./styles";
+import { brandsUrl } from "../../util/brands-url";
 
 interface HandlerObj {
   name: string;
@@ -31,13 +34,13 @@ interface HandlerObj {
 class StepFlowPickHandler extends LitElement {
   public flowConfig!: FlowConfig;
 
-  @property() public hass!: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
   @property() public handlers!: string[];
 
   @property() public showAdvanced?: boolean;
 
-  @property() private filter?: string;
+  @internalProperty() private filter?: string;
 
   private _width?: number;
 
@@ -81,6 +84,7 @@ class StepFlowPickHandler extends LitElement {
         autofocus
         .filter=${this.filter}
         @value-changed=${this._filterChanged}
+        .label=${this.hass.localize("ui.panel.config.integrations.search")}
       ></search-input>
       <div
         style=${styleMap({
@@ -99,7 +103,7 @@ class StepFlowPickHandler extends LitElement {
                 <img
                   slot="item-icon"
                   loading="lazy"
-                  src="https://brands.home-assistant.io/_/${handler.slug}/icon.png"
+                  src=${brandsUrl(handler.slug, "icon", true)}
                   referrerpolicy="no-referrer"
                 />
 
@@ -120,7 +124,7 @@ class StepFlowPickHandler extends LitElement {
               ${this.hass.localize(
                 "ui.panel.config.integrations.note_about_website_reference"
               )}<a
-                href="https://www.home-assistant.io/integrations/"
+                href="${documentationUrl(this.hass, "/integrations/")}"
                 target="_blank"
                 rel="noreferrer"
                 >${this.hass.localize(
